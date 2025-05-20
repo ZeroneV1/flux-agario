@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Eat cells smaller than you and don't get eaten by the bigger ones, as an MMO">
+    <meta name="keywords"
+        content="agario, agar, io, cell, cells, virus, bacteria, blob, game, games, web game, html5, fun, flash">
+    <meta name="robots" content="index, follow">
+    <meta name="viewport"
+        content="minimal-ui, width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+
+    <title>canvas</title> <link rel="shortcut icon" type="image/x-icon"
+        href="https://du11hjcvx0uqb.cloudfront.net/dist/images/favicon-e10d657a73.ico">
+    <link href="https://fonts.googleapis.com/css?family=Poppins:400,600,700&display=swap" rel="stylesheet" type="text/css">
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/gh/hung1001/font-awesome-pro-v6/css/all.css" rel="stylesheet">
+    <link href="./index.css" rel="stylesheet"> <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6824112472674918"
+        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/picmo@latest/dist/umd/index.js"></script>
+    <script src="./quadtree.js"></script>
+    <script src="./main_out.js"></script>
+
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-45C2EV6T5X"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+        gtag('config', 'G-45C2EV6T5X');
+    </script>
+    <script>
+        (function (w, d, s, l, i) {
+            w[l] = w[l] || []; w[l].push({ 'gtm.start': new Date().getTime(), event: 'gtm.js' });
+            var f = d.getElementsByTagName(s)[0], j = d.createElement(s), dl = l != 'dataLayer' ? '&l=' + l : '';
+            j.async = true; j.src = 'https://www.googletagmanager.com/gtm.js?id=' + i + dl;
+            f.parentNode.insertBefore(j, f);
+        })(window, document, 'script', 'dataLayer', 'GTM-TDKSTRS');
+    </script>
+</head>
+
+<body onload="MC()">
+    <div id="gallery" class="modal-overlay" onclick="if (event.target == this) this.style.display='none';" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <p>Skins & Settings</p>
+                <button class="modal-close-btn" onclick="document.getElementById('gallery').style.display='none'">&times;</button>
+            </div>
+            <div class="modal-body">
+                <ul id="skinsUL"></ul>
+                 <div class="settings-section">
+                    <h4>Settings:</h4>
+                    <div id="settings" class="checkbox-grid">
+                        <label><input id="showSkins" type="checkbox">Skins</label>
+                        <label><input id="showNames" type="checkbox">Names</label>
+                        <label><input id="darkTheme" type="checkbox">Dark Theme</label> <label><input id="showColor" type="checkbox">Color</label>
+                        <label><input id="showMass" type="checkbox">Mass</label>
+                        <label><input id="showChat" type="checkbox">Chat</label>
+                        <label><input id="showMinimap" type="checkbox">Minimap</label>
+                        <label><input id="showPosition" type="checkbox">Position</label>
+                        <label><input id="showBorder" type="checkbox">Border</label>
+                        <label><input id="showGrid" type="checkbox">Grid</label>
+                        <label><input id="moreZoom" type="checkbox">Zoomout</label>
+                        <label><input id="fillSkin" type="checkbox">Fill Skin</label>
+                        <label><input id="backgroundSectors" type="checkbox">BG Sectors</label>
+                        <label><input id="jellyPhysics" type="checkbox">Jelly Physics</label>
+                        <label class="sound-setting">
+                            <input id="playSounds" type="checkbox">Sounds
+                            <input id="soundsVolume" type="range" min="0" max="1" step="any">
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="update" class="modal-overlay" onclick="if (event.target == this) this.style.display='none';" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <p>Updates</p>
+                <button class="modal-close-btn" onclick="document.getElementById('update').style.display='none'">&times;</button>
+            </div>
+            <div id="update-body" class="modal-body custom-scroll"></div>
+        </div>
+    </div>
+
+    <div id="credits" class="modal-overlay" onclick="if (event.target == this) this.style.display='none';" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <p>Credits</p>
+                 <button class="modal-close-btn" onclick="document.getElementById('credits').style.display='none'">&times;</button>
+            </div>
+            <div id="credit-body" class="modal-body custom-scroll"></div>
+        </div>
+    </div>
+
+    <div id="overlays" style="display: none;">
+        <div id="helloDialog">
+            <div class="game-text-logo">
+                <h1 class="text-glow">Flux Agar.io</h1>
+            </div>
+            <p id="subtitle" class="game-subtitle">Initializing Interface...</p> <div class="menu-section">
+                <input id="nick" class="form-control" placeholder="Enter Your Codename" maxlength="100">
+                 </div>
+
+            <div class="menu-section">
+                <select id="gamemode" class="form-control" onchange="setserver(this.value)" required>
+                    <option value="fluxaga.glitch.me" selected>FFA #1 [US]</option>
+                    </select>
+            </div>
+
+            <div class="menu-actions">
+                <button id="play-btn" class="btn btn-play btn-primary btn-needs-server">Play</button>
+                <button id="spectate-btn" onclick="spectate()" class="btn btn-spectate btn-needs-server"><i class="fa-solid fa-binoculars"></i> Spectate</button> </div>
+
+            <div class="menu-section">
+                 <input id="skin" class="form-control" placeholder="Custom skin URL">
+            </div>
+
+            <div class="menu-options">
+                <button class="btn btn-info" onclick="document.getElementById('gallery').style.display='flex'">settings</button>
+            </div>
+
+            <div class="menu-section-divider"></div>
+
+            <div id="instructions" class="menu-info">
+                <p>move with mouse. <b>Spacebar</b> to split. <b>W</b> to eject mass.</p>
+                <p class="important-note">Connection unstable? Try a different server!</p>
+            </div>
+
+            <div class="menu-section-divider"></div>
+
+            <div id="opensource" class="menu-info">
+                <p>Source code available <a href="https://github.com/ZeroneV1/flux" target="_blank">on GitHub</a>.</p>
+                <p>Contact: <span class="discord-tag">zerone.v1</span> (Discord)</p>
+                <p><a href="https://example.com" target="_blank" class="discord-join-link"><i class="fab fa-discord"></i> Join The Discord!</a></p>
+            </div>
+
+
+            <div id="footer" class="menu-footer">
+                 <span id="copyright-text">© 2023-2024 Flux Agar</span></a>
+            </div>
+        </div>
+
+        <div id="versionDialog" class="modal-overlay-inline" onclick="if (event.target == this) this.style.display='none';" style="display: none;">
+            <div class="modal-content-inline">
+                <div class="modal-header">
+                    <p>More Simulations</p>
+                    <button class="modal-close-btn" onclick="document.getElementById('versionDialog').style.display='none'">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <img src="https://cdn.glitch.global/9c8c96bb-a059-45d7-8b2b-d37ee6083aa6/logo.png" width="60%" alt="imadejptr logo" style="margin-bottom:15px;">
+                    <h3 class="panel-title">Discover more at <a href="https://www.imadejptr.com" target="_blank">imadejptr.com</a>!</h3>
+                    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6003658983346596" crossorigin="anonymous"></script>
+                    <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-6003658983346596" data-ad-slot="1509634628" data-ad-format="auto" data-full-width-responsive="true"></ins>
+                    <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+                </div>
+            </div>
+        </div>
+
+        <div id="otherWebsiteDialog" class="modal-overlay-inline" onclick="if (event.target == this) this.style.display='none';" style="display: none;">
+            <div class="modal-content-inline">
+                <div class="modal-header">
+                    <p>About JPTR Core</p>
+                    <button class="modal-close-btn" onclick="document.getElementById('otherWebsiteDialog').style.display='none'">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <p>The JPTR Agario simulation is a tribute to classic cell-consumption games, enhanced with Cigar2 modifications. Explore other simulations at <a href="https://imadejptr.glitch.me/">i made jptr</a>.</p>
+                    <hr>
+                    <a href="https://discord.gg/UQ35z2ACNw" target="_blank" class="discord-widget">
+                        <h4>Join our Comms Hub!</h4>
+                        <img src="https://discordapp.com/api/guilds/1049872644528418856/widget.png?style=shield" width="80%" id="dcimg-panel" alt="Discord Widget">
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div id="connecting">
+            <div id="connecting-content">
+                <h2>Establishing Connection...</h2>
+                <p>Connecting can take up to 30 seconds when server is offline, please be patient!</p>
+            </div>
+        </div>
+    </div>
+
+
+    <div id="mobileStuff" style="display: none;">
+        <div id="touchpad"></div>
+        <div id="touchCircle" style="display: none;"></div>
+        <img src="/assets/img/split.png" id="splitBtn" alt="Split Button">
+        <img src="/assets/img/eject.png" id="ejectBtn" alt="Eject Button">
+    </div>
+
+    <canvas id="canvas" width="800" height="600"></canvas>
+    <input type="text" id="chat_textbox" placeholder="Broadcast message... (Enter to send)" maxlength="200">
+    <div style="font-family:'Poppins', sans-serif;">&nbsp;</div> <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-TDKSTRS" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+
+</body>
+</html>
